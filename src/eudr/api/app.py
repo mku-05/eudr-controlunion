@@ -5,7 +5,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -35,6 +35,7 @@ class CreateCase(BaseModel):
     folder: str
     operator: str | None = None
     use_agent: bool | None = None
+    run: bool = False
 
 
 class ReviewAction(BaseModel):
@@ -66,19 +67,25 @@ def list_cases(status: str | None = None):
 
 
 @app.post("/cases")
-def create_case(body: CreateCase):
+def create_case(body: CreateCase, bg: BackgroundTasks):
     if not Path(body.folder).is_dir():
         raise HTTPException(400, "folder not found")
-    return engine.summary(engine.create_case(body.folder, body.operator, body.use_agent).id)
+    c = engine.create_case(body.folder, body.operator, body.use_agent)
+    if body.run:
+        bg.add_task(engine.run_background, c.id, True)
+    return engine.summary(c.id)
 
 
 @app.post("/cases/upload")
-async def create_case_upload(files: list[UploadFile], operator: str | None = None):
-    d = Path(tempfile.mkdtemp(prefix="eudr_upload_", dir=settings.data_dir))
+async def create_case_upload(files: list[UploadFile], bg: BackgroundTasks, operator: str | None = None, use_agent: bool = True, run: bool = True):
+    d = Path(tempfile.mkdtemp(prefix="eudr_upload_", dir=settings.data_dir / "uploads"))
     for f in files:
         with open(d / Path(f.filename).name, "wb") as out:
             shutil.copyfileobj(f.file, out)
-    return engine.summary(engine.create_case(d, operator).id)
+    c = engine.create_case(d, operator, use_agent)
+    if run:
+        bg.add_task(engine.run_background, c.id, True)
+    return engine.summary(c.id)
 
 
 @app.get("/cases/{case_id}")
@@ -90,8 +97,34 @@ def get_case(case_id: str):
 
 
 @app.post("/cases/{case_id}/run")
-def run_case(case_id: str, imagery: bool = True):
+def run_case(case_id: str, bg: BackgroundTasks, imagery: bool = True, background: bool = False):
+    if background:
+        bg.add_task(engine.run_background, case_id, imagery)
+        return {"case": case_id, "started": True}
     return engine.run(case_id, with_imagery=imagery)
+
+
+@app.get("/cases/{case_id}/progress")
+def progress(case_id: str):
+    return engine.progress(case_id)
+
+
+@app.get("/cases/{case_id}/geojson")
+def geojson(case_id: str):
+    return engine.geojson(case_id)
+
+
+@app.get("/dashboard")
+def dashboard():
+    return engine.dashboard()
+
+
+@app.get("/cases/{case_id}/pages/{name}")
+def page_image(case_id: str, name: str):
+    p = settings.data_dir / "cases" / case_id / "docs" / "pages" / Path(name).name
+    if not p.exists():
+        raise HTTPException(404)
+    return FileResponse(p)
 
 
 @app.post("/cases/{case_id}/redraft")

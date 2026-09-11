@@ -498,6 +498,81 @@ def explain_plot(case_id: str, plot_id: str) -> dict:
             "gaps": [g.model_dump() for g in c.gaps if g.subject_ref == plot_id]}
 
 
+_running: set[str] = set()
+
+
+def run_background(case_id: str, with_imagery: bool = True) -> None:
+    if case_id in _running:
+        return
+    _running.add(case_id)
+    try:
+        run(case_id, with_imagery=with_imagery)
+    except Exception as e:  # noqa: BLE001
+        Ledger(case_id).append("agent_error", "engine", {"error": str(e)[:500]})
+    finally:
+        _running.discard(case_id)
+
+
+def progress(case_id: str) -> dict:
+    c = store().get(case_id)
+    entries = Ledger(case_id).entries()
+    actors = [e["actor"] for e in entries]
+    screened = sum(1 for a in actors if a == "geo.screen")
+    adjudicated = sum(1 for a in actors if a == "adjudicate")
+    return {"status": c.status, "running": case_id in _running, "screened": screened, "adjudicated": adjudicated,
+            "plots_with_geometry": sum(1 for p in c.plots if p.geometry),
+            "steps_seen": sorted(set(actors)), "recent": entries[-8:]}
+
+
+def _flag_counts(c: Case) -> dict:
+    counts = {v.value: 0 for v in Verdict} | {"none": 0}
+    for p in c.plots:
+        a = c.assessment_for(p.id)
+        counts[a.final_verdict.value if a else "none"] += 1
+    return counts
+
+
+def dashboard() -> dict:
+    cases = [store().get(r["id"]) for r in store().list()]
+    rows, recent = [], []
+    totals = {"cases": len(cases), "plots": 0, "screened": 0, "pending_reviews": 0, "exceptions": 0, "critical": 0, "acknowledged": 0, "hectares": 0.0}
+    flags = {v.value: 0 for v in Verdict}
+    for c in cases:
+        fc = _flag_counts(c)
+        pending = sum(1 for p in c.plots if (a := c.assessment_for(p.id)) and a.reviewer is None and a.verdict != Verdict.PASS)
+        rows.append({"id": c.id, "operator": c.operator, "status": c.status, "origin": c.origin_country, "destination": c.destination,
+                     "shipment": c.shipment_window, "plots": len(c.plots), "flags": fc, "pending_reviews": pending, "exceptions": len(c.exceptions),
+                     "critical_exceptions": sum(1 for e in c.exceptions if e.severity == "critical"),
+                     "risk": (c.risk.criteria.get("level") if c.risk else None), "updated_at": c.updated_at.isoformat(), "running": c.id in _running})
+        for k in flags:
+            flags[k] += fc[k]
+        totals["plots"] += len(c.plots); totals["screened"] += sum(fc[k] for k in flags); totals["pending_reviews"] += pending
+        totals["exceptions"] += len(c.exceptions); totals["critical"] += sum(1 for e in c.exceptions if e.severity == "critical")
+        totals["acknowledged"] += bool(c.acknowledgement); totals["hectares"] += sum(p.computed_area_ha or 0 for p in c.plots)
+        for e in Ledger(c.id).entries()[-6:]:
+            recent.append({"case": c.id, "operator": c.operator, **{k: e[k] for k in ("ts", "kind", "actor")}, "payload": {k: v for k, v in e["payload"].items() if k in ("verdict", "plot", "to", "why", "action", "recommended", "error", "count")}})
+    recent.sort(key=lambda x: x["ts"], reverse=True)
+    totals["hectares"] = round(totals["hectares"])
+    return {"totals": totals, "flags": flags, "cases": rows, "recent": recent[:15]}
+
+
+def geojson(case_id: str) -> dict:
+    c = store().get(case_id)
+    feats = []
+    for p in c.plots:
+        if not p.geometry:
+            continue
+        a = c.assessment_for(p.id)
+        ov = next((e for e in (a.evidence if a else []) if e.type == "loss_overlay"), None)
+        m = a.metrics.model_dump() if a and a.metrics else None
+        feats.append({"type": "Feature", "geometry": p.geometry, "properties": {
+            "id": p.id, "name": p.name or p.id, "supplier": c.supplier(p.supplier_id).name, "area_ha": p.computed_area_ha,
+            "verdict": (a.final_verdict.value if a else None), "engine_verdict": (a.verdict.value if a else None), "reviewer": (a.reviewer if a else None),
+            "metrics": m, "assessment_id": (a.id if a else None),
+            "overlay": ({"url": f"/cases/{c.id}/evidence/{p.id}/{Path(ov.uri).name}", "bounds": ov.meta.get("bounds")} if ov and ov.meta.get("bounds") else None)}})
+    return {"type": "FeatureCollection", "features": feats}
+
+
 def exceptions(case_id: str) -> list[dict]:
     return [e.model_dump(mode="json") for e in store().get(case_id).exceptions]
 

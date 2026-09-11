@@ -57,3 +57,4 @@ class Settings(BaseSettings):
 settings = Settings()
 settings.data_dir.mkdir(parents=True, exist_ok=True)
 settings.raster_cache_dir.mkdir(parents=True, exist_ok=True)
+(settings.data_dir / "uploads").mkdir(parents=True, exist_ok=True)

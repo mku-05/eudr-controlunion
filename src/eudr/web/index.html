@@ -6,57 +6,113 @@
 <title>The Regulator AI — EUDR Console</title>
 <link rel="icon" href="/app/static/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/static/vendor/leaflet.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
-  colors: { ink: '#2C3E50', brand: '#27AE60' } } } }
+tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'], mono: ['Geist Mono', 'ui-monospace', 'monospace'] },
+  colors: { ink: '#2C3E50', brand: '#27AE60', night: '#1a1a1c' } } } }
 </script>
 <style>
-  body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; }
-  .eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; color: #9ca3af; }
-  .card { background: #fff; border: 1px solid #f1f5f9; border-radius: 1rem; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
-  .pill { display: inline-flex; align-items: center; gap: .35rem; border-radius: 9999px; padding: .2rem .6rem; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border: 1px solid transparent; }
-  .pill-PASS { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-  .pill-EXCEPTION { background: #fffbeb; color: #b45309; border-color: #fde68a; }
-  .pill-CRITICAL { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
-  .pill-none { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
-  .pill-critical { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
-  .pill-major { background: #fffbeb; color: #b45309; border-color: #fde68a; }
-  .pill-minor { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
-  .pill-info { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
-  .nav-item { display: flex; align-items: center; gap: .75rem; padding: .65rem .9rem; border-radius: .75rem; color: #475569; font-size: 14px; font-weight: 500; }
+  :root { --ink:#2C3E50; --indigo:#4f46e5; --pass:#059669; --exc:#d97706; --crit:#e11d48; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; color: var(--ink); }
+  .eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; color: #94a3b8; }
+  .card { background: #fff; border: 1px solid #eef2f7; border-radius: 1rem; box-shadow: 0 1px 2px rgba(15,23,42,.03), 0 8px 24px -20px rgba(15,23,42,.12); }
+  .card-hd { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding: .9rem 1.25rem; border-bottom: 1px solid #f1f5f9; }
+  .card-title { font-weight: 600; font-size: 14px; }
+  .pill { display: inline-flex; align-items: center; gap: .35rem; border-radius: 9999px; padding: .2rem .6rem; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border: 1px solid transparent; white-space: nowrap; }
+  .pill-PASS, .pill-pass { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+  .pill-EXCEPTION, .pill-major { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .pill-CRITICAL, .pill-critical { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .pill-none, .pill-info { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+  .pill-minor, .pill-indigo { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+  .pill-dark { background: #1a1a1c; color: #fff; }
+  .nav-item { display: flex; align-items: center; gap: .75rem; padding: .6rem .85rem; border-radius: .75rem; color: #475569; font-size: 13.5px; font-weight: 500; transition: background .15s, color .15s; }
   .nav-item:hover { background: #f8fafc; color: #1e293b; }
   .nav-item.active { background: #eef2ff; color: #4f46e5; }
-  .btn { display: inline-flex; align-items: center; gap: .4rem; border-radius: .75rem; padding: .55rem .9rem; font-size: 13px; font-weight: 600; border: 1px solid #e2e8f0; background: #fff; color: #1e293b; }
-  .btn:hover { background: #f8fafc; }
-  .btn-primary { background: #4f46e5; border-color: #4f46e5; color: #fff; box-shadow: 0 8px 20px -8px rgba(79,70,229,.5); }
+  .nav-item svg { width: 16px; height: 16px; flex: none; }
+  .btn { display: inline-flex; align-items: center; gap: .45rem; border-radius: .75rem; padding: .55rem .95rem; font-size: 13px; font-weight: 600; border: 1px solid #e2e8f0; background: #fff; color: #1e293b; cursor: pointer; transition: background .15s, transform .05s, box-shadow .15s; white-space: nowrap; }
+  .btn:hover { background: #f8fafc; } .btn:active { transform: translateY(1px); }
+  .btn-primary { background: #4f46e5; border-color: #4f46e5; color: #fff; box-shadow: 0 10px 24px -10px rgba(79,70,229,.6); }
   .btn-primary:hover { background: #4338ca; }
-  .btn-danger { background: #fff1f2; border-color: #fecdd3; color: #be123c; }
-  .btn[disabled] { opacity: .5; cursor: not-allowed; }
-  .kpi { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
-  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-  .tab { padding: .55rem .9rem; border-radius: .75rem; font-size: 13px; font-weight: 600; color: #64748b; }
-  .tab.active { background: #fff; color: #4f46e5; box-shadow: 0 1px 2px rgba(15,23,42,.06); border: 1px solid #f1f5f9; }
-  .thumb { border: 1px solid #e2e8f0; border-radius: .75rem; overflow: hidden; background: #f8fafc; }
-  .thumb img { width: 100%; display: block; }
-  input, textarea, select { border: 1px solid #e2e8f0; border-radius: .75rem; padding: .55rem .8rem; font-size: 13px; width: 100%; background: #fff; }
+  .btn-dark { background: #1a1a1c; border-color: #1a1a1c; color: #fff; } .btn-dark:hover { background: #2a2a2d; }
+  .btn-danger { background: #fff1f2; border-color: #fecdd3; color: #be123c; } .btn-danger:hover { background: #ffe4e6; }
+  .btn-sm { padding: .35rem .7rem; font-size: 12px; border-radius: .6rem; }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .kpi { font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11.5px; }
+  .tab { padding: .5rem .85rem; border-radius: .7rem; font-size: 13px; font-weight: 600; color: #64748b; display:inline-flex; gap:.4rem; align-items:center; }
+  .tab .n { font-size: 10px; background: #f1f5f9; color: #475569; border-radius: 9999px; padding: .05rem .45rem; }
+  .tab.active { background: #fff; color: #4f46e5; box-shadow: 0 1px 2px rgba(15,23,42,.06); border: 1px solid #eef2f7; }
+  .tab.active .n { background: #eef2ff; color: #4f46e5; }
+  input, textarea, select { border: 1px solid #e2e8f0; border-radius: .75rem; padding: .55rem .8rem; font-size: 13px; width: 100%; background: #fff; color: #1e293b; }
   input:focus, textarea:focus, select:focus { outline: 2px solid #c7d2fe; border-color: #a5b4fc; }
+  input[type=checkbox], input[type=radio] { width: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #94a3b8; font-weight: 600; padding: .6rem .75rem; border-bottom: 1px solid #f1f5f9; }
-  td { padding: .7rem .75rem; border-bottom: 1px solid #f8fafc; vertical-align: top; color: #1e293b; }
-  tr.row:hover td { background: #fafbff; cursor: pointer; }
-  .score-bar { height: 4px; border-radius: 9999px; background: #fecdd3; }
-  .toast { position: fixed; right: 1.25rem; bottom: 1.25rem; background: #1a1a1c; color: #fff; padding: .7rem 1rem; border-radius: .75rem; font-size: 13px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.6); z-index: 50; }
-  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: flex; align-items: center; justify-content: center; z-index: 40; padding: 1.5rem; }
-  .modal .card { max-width: 1100px; width: 100%; max-height: 92vh; overflow: auto; }
+  th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #94a3b8; font-weight: 600; padding: .6rem 1rem; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+  td { padding: .7rem 1rem; border-bottom: 1px solid #f8fafc; vertical-align: middle; color: #1e293b; }
+  tr.row { cursor: pointer; } tr.row:hover td { background: #fafbff; } tr.row.sel td { background: #eef2ff; }
+  .toast { position: fixed; right: 1.25rem; bottom: 1.25rem; background: #1a1a1c; color: #fff; padding: .75rem 1.1rem; border-radius: .8rem; font-size: 13px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.6); z-index: 90; max-width: 420px; }
+  .drawer-bg { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 60; backdrop-filter: blur(2px); }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(880px, 96vw); background: #f8fafc; z-index: 61; overflow-y: auto; box-shadow: -30px 0 60px -30px rgba(0,0,0,.5); animation: slide .22s ease-out; }
+  @keyframes slide { from { transform: translateX(40px); opacity: 0 } to { transform: none; opacity: 1 } }
+  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; z-index: 70; padding: 1.5rem; backdrop-filter: blur(2px); }
+  .modal .card { max-width: 980px; width: 100%; max-height: 92vh; overflow: auto; }
+  .stepper { display: flex; align-items: center; gap: 0; }
+  .step { display:flex; align-items:center; gap:.5rem; font-size: 11.5px; font-weight: 600; color: #94a3b8; }
+  .step .dot { width: 22px; height: 22px; border-radius: 9999px; border: 2px solid #e2e8f0; display:grid; place-items:center; font-size: 10px; background:#fff; }
+  .step.done { color: #047857; } .step.done .dot { border-color: #34d399; background: #ecfdf5; color:#047857; }
+  .step.cur { color: #4f46e5; } .step.cur .dot { border-color: #4f46e5; background:#eef2ff; color:#4f46e5; box-shadow: 0 0 0 4px #e0e7ff; }
+  .step.cur.busy .dot { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 4px #e0e7ff } 50% { box-shadow: 0 0 0 8px #eef2ff } }
+  .step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 .5rem; min-width: 14px; }
+  .step-line.done { background: #34d399; }
+  .thumb { border: 1px solid #e2e8f0; border-radius: .8rem; overflow: hidden; background: #f8fafc; }
+  .thumb img { width: 100%; display: block; }
+  .thumb .cap { padding: .4rem .6rem; font-size: 10.5px; color: #64748b; }
+  .compare { position: relative; overflow: hidden; border-radius: .9rem; border: 1px solid #e2e8f0; background: #0f172a; aspect-ratio: 1; }
+  .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .compare .after { clip-path: inset(0 0 0 var(--x, 50%)); }
+  .compare .handle { position: absolute; top: 0; bottom: 0; left: var(--x, 50%); width: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.3); pointer-events: none; }
+  .compare .handle::after { content: '⇆'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 9999px; background: #fff; color: #1e293b; display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+  .compare input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+  .compare .lbl { position: absolute; top: .5rem; padding: .2rem .5rem; border-radius: .4rem; background: rgba(15,23,42,.75); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .gauge { position: relative; width: 120px; height: 120px; }
+  .gauge svg { transform: rotate(-90deg); }
+  .gauge .v { position: absolute; inset: 0; display: grid; place-items: center; font-size: 28px; font-weight: 700; letter-spacing: -.03em; }
+  .metric { background: #f8fafc; border-radius: .8rem; padding: .7rem .85rem; }
+  .metric .l { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #94a3b8; font-weight: 600; }
+  .metric .n { font-size: 18px; font-weight: 700; margin-top: .2rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .feed-item { display: flex; gap: .75rem; padding: .55rem 0; border-bottom: 1px solid #f1f5f9; font-size: 12.5px; }
+  .feed-item:last-child { border-bottom: 0; }
+  .feed-dot { width: 8px; height: 8px; border-radius: 9999px; margin-top: .45rem; flex: none; }
+  .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%); background-size: 200% 100%; animation: sk 1.2s infinite; border-radius: .6rem; }
+  @keyframes sk { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+  .drop { border: 2px dashed #c7d2fe; border-radius: 1rem; padding: 1.6rem; text-align: center; background: #fafbff; transition: background .15s, border-color .15s; cursor: pointer; }
+  .drop.over { background: #eef2ff; border-color: #4f46e5; }
+  .leaflet-container { font-family: inherit; border-radius: 1rem; background: #0b1220; }
+  .map-legend { position: absolute; left: .75rem; bottom: .75rem; z-index: 500; background: rgba(255,255,255,.95); border-radius: .7rem; padding: .5rem .7rem; font-size: 11px; display:flex; gap:.7rem; box-shadow: 0 4px 14px -6px rgba(0,0,0,.3); }
+  .map-legend span { display:inline-flex; align-items:center; gap:.3rem; } .map-legend i { width: 10px; height: 10px; border-radius: 2px; display:inline-block; }
+  .map-ctl { position: absolute; right: .75rem; top: .75rem; z-index: 500; display:flex; gap:.4rem; }
+  .plot-popup .leaflet-popup-content { margin: .7rem .9rem; font-size: 12px; }
+  .cite-box { position: absolute; border: 2px solid #e11d48; background: rgba(250, 204, 21, .28); border-radius: 3px; cursor: pointer; transition: box-shadow .15s; }
+  .cite-box:hover, .cite-box.hl { box-shadow: 0 0 0 3px rgba(225,29,72,.35); }
+  .filter-chip { font-size: 11.5px; font-weight: 600; padding: .3rem .7rem; border-radius: 9999px; border: 1px solid #e2e8f0; background: #fff; color: #475569; cursor: pointer; }
+  .filter-chip.on { background: #1a1a1c; color: #fff; border-color: #1a1a1c; }
+  .bar { height: 6px; border-radius: 9999px; background: #f1f5f9; overflow: hidden; display: flex; }
+  .bar i { display: block; height: 100%; }
+  .hero { background: radial-gradient(1200px 300px at 20% -20%, rgba(79,70,229,.10), transparent 60%), #fff; }
+  .stepper { overflow-x: auto; padding-bottom: 2px; }
+  .kbd { font-family: 'Geist Mono', monospace; font-size: 10px; border: 1px solid #e2e8f0; border-bottom-width: 2px; border-radius: .35rem; padding: .05rem .35rem; color: #64748b; background: #fff; }
   [hidden] { display: none !important; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 9999px; border: 3px solid #fff; }
 </style>
 </head>
-<body class="bg-slate-50 text-ink antialiased">
+<body class="bg-slate-50 antialiased">
 <div class="flex min-h-screen">
-  <aside class="w-[248px] shrink-0 bg-white border-r border-slate-100 flex flex-col p-4 sticky top-0 h-screen">
-    <a href="#/cases" class="flex items-center gap-3 px-2 py-1">
+  <aside class="w-[252px] shrink-0 bg-white border-r border-slate-100 flex flex-col p-4 sticky top-0 h-screen">
+    <a href="#/" class="flex items-center gap-3 px-2 py-1">
       <img src="/app/static/logo.png" alt="The Regulator AI" class="h-9 w-auto">
       <div>
         <div class="font-semibold text-[15px] leading-tight text-ink">The Regulator <span class="text-brand">AI</span></div>
@@ -66,19 +122,15 @@ tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-se
     <div class="card p-3 mt-5">
       <div class="flex items-center gap-2 eyebrow"><span class="h-1.5 w-1.5 rounded-full bg-brand"></span>Pilot context</div>
       <div class="mt-2 text-[13px] font-medium">Control Union · Line A — Soya</div>
-      <div class="text-[11px] text-slate-400 mt-0.5">EUDR (EU) 2023/1115 · cut-off 2020-12-31</div>
+      <div class="text-[11px] text-slate-400 mt-0.5">EUDR (EU) 2023/1115 · cut-off 31 Dec 2020</div>
     </div>
     <nav class="mt-5 flex flex-col gap-1" id="nav">
-      <a class="nav-item" data-route="cases" href="#/cases">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Cases</a>
-      <a class="nav-item" data-route="review" href="#/review">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Review queue</a>
-      <a class="nav-item" data-route="exceptions" href="#/exceptions">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3.1l-8-14a2 2 0 00-3.4 0z"/></svg>Exception ledger</a>
-      <a class="nav-item" data-route="documents" href="#/documents">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/></svg>Documents &amp; citations</a>
-      <a class="nav-item" data-route="roi" href="#/roi">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M7 16V9m5 7V5m5 11v-5"/></svg>ROI report</a>
+      <a class="nav-item" data-route="" href="#/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Overview</a>
+      <a class="nav-item" data-route="cases" href="#/cases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Cases</a>
+      <a class="nav-item" data-route="review" href="#/review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Review workspace</a>
+      <a class="nav-item" data-route="exceptions" href="#/exceptions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3.1l-8-14a2 2 0 00-3.4 0z"/></svg>Exception ledger</a>
+      <a class="nav-item" data-route="documents" href="#/documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/></svg>Documents &amp; citations</a>
+      <a class="nav-item" data-route="roi" href="#/roi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M7 16V9m5 7V5m5 11v-5"/></svg>ROI report</a>
     </nav>
     <div class="mt-auto card p-3">
       <div class="eyebrow">Signed-in reviewer</div>
@@ -88,22 +140,25 @@ tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-se
   </aside>
 
   <main class="flex-1 min-w-0">
-    <header class="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-100 sticky top-0 z-10">
+    <header class="flex items-center justify-between px-8 py-4 bg-white/80 backdrop-blur border-b border-slate-100 sticky top-0 z-40">
       <div>
-        <h1 id="title" class="text-[19px] font-semibold tracking-tight">Cases</h1>
-        <div class="flex items-center gap-2 mt-1"><span class="eyebrow">Framework</span><span class="pill pill-minor">EUDR (EU) 2023/1115</span><span class="pill pill-info">Advisory · human sign-off</span></div>
+        <h1 id="title" class="text-[18px] font-semibold tracking-tight">Overview</h1>
+        <div id="subtitle" class="flex items-center gap-2 mt-1"><span class="eyebrow">Framework</span><span class="pill pill-indigo">EUDR (EU) 2023/1115</span><span class="pill pill-info">Advisory · human sign-off</span></div>
       </div>
       <div class="flex items-center gap-3">
-        <span id="casebadge" class="pill pill-none" hidden></span>
-        <span class="pill pill-none"><span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>Engine online</span>
+        <a id="casebadge" class="pill pill-dark" hidden href="#/"></a>
+        <span class="pill pill-info"><span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>Engine online</span>
         <span class="h-8 w-8 rounded-full border-2 border-brand text-brand grid place-items-center text-[11px] font-bold">AI</span>
       </div>
     </header>
     <section id="view" class="p-8"></section>
   </main>
 </div>
+<div id="drawer-root"></div>
 <div id="modal" class="modal" hidden><div class="card p-6" id="modal-body"></div></div>
 <div id="toast" class="toast" hidden></div>
+<script src="/app/static/vendor/leaflet.js"></script>
+<script src="/app/static/vendor/chart.umd.js"></script>
 <script src="/app/static/app.js"></script>
 </body>
 </html>

@@ -52,7 +52,10 @@ EUDR_AGENTS=0 EUDR_GEO_PROVIDER=mock .venv/bin/eudr case run <case_id>
 scripts/demo.sh public data/demo-public tests/fixtures/case_en_2027   # English package on real satellite data
 
 # API + web console (The Regulator AI design system)
-.venv/bin/eudr serve   # console at http://127.0.0.1:8471/app · API docs at /docs
+.venv/bin/eudr serve --host 0.0.0.0   # console at http://<host>:8471/app · API docs at /docs
+# console: satellite plot map with loss overlays, live pipeline stepper, before/after compare, NDVI charts,
+# review workspace (j/k), exception ledger with filters and inline citations, document viewer with citation boxes,
+# chain-of-custody flow, hash-chained ledger, ROI dashboard, drag-and-drop package upload. Leaflet + Chart.js vendored.
 
 # talk to the case
 .venv/bin/eudr chat <case_id>

@@ -74,7 +74,7 @@ def build_evidence(case_id: str, plot: Plot, r: PlotRasters, layers: dict[str, n
     d = evidence_dir(case_id, plot.id)
     ev: list[Evidence] = []
     path, h = _save(d, "loss_overlay.png", loss_overlay_png(r, layers))
-    ev.append(Evidence(type="loss_overlay", uri=path, sha256=h, source=provider.name, source_version=json.dumps(r.dataset_versions)))
+    ev.append(Evidence(type="loss_overlay", uri=path, sha256=h, source=provider.name, source_version=json.dumps(r.dataset_versions), meta={"bounds": list(r.grid.bounds())}))
     for name, ver in r.dataset_versions.items():
         ev.append(Evidence(type="dataset", uri=name, sha256=sha256_bytes(f"{name}:{ver}".encode()), source=name, source_version=ver))
     if not with_imagery:
