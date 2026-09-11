@@ -1,0 +1,56 @@
+[project]
+name = "eudr-agent"
+version = "0.1.0"
+description = "Agentic EUDR compliance engine for soya — plot verification, evidence, DDS"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "sqlalchemy>=2.0",
+  "typer>=0.15",
+  "rich>=13.9",
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "shapely>=2.0",
+  "pyproj>=3.7",
+  "rasterio>=1.4",
+  "pyogrio>=0.10",
+  "numpy>=2.0",
+  "httpx>=0.27",
+  "pillow>=11.0",
+  "reportlab>=4.2",
+  "python-multipart>=0.0.12",
+  "openpyxl>=3.1",
+  "pypdf>=5.0",
+  "claude-agent-sdk>=0.2.150",
+  "scipy>=1.18.1",
+  "pymupdf>=1.28.2",
+  "rapidocr-onnxruntime>=1.4.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "pytest-asyncio>=0.24", "httpx>=0.27", "ruff>=0.7"]
+
+[project.scripts]
+eudr = "eudr.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eudr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["live: hits public satellite data (set EUDR_LIVE=1)", "agent: calls Claude via ccp (set EUDR_AGENT=1)"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[dependency-groups]
+dev = [
+    "playwright>=1.62.0",
+]

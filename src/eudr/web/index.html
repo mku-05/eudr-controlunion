@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Regulator AI — EUDR Console</title>
+<link rel="icon" href="/app/static/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { fontFamily: { sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+  colors: { ink: '#2C3E50', brand: '#27AE60' } } } }
+</script>
+<style>
+  body { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; }
+  .eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; color: #9ca3af; }
+  .card { background: #fff; border: 1px solid #f1f5f9; border-radius: 1rem; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+  .pill { display: inline-flex; align-items: center; gap: .35rem; border-radius: 9999px; padding: .2rem .6rem; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border: 1px solid transparent; }
+  .pill-PASS { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+  .pill-EXCEPTION { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .pill-CRITICAL { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .pill-none { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+  .pill-critical { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .pill-major { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .pill-minor { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+  .pill-info { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+  .nav-item { display: flex; align-items: center; gap: .75rem; padding: .65rem .9rem; border-radius: .75rem; color: #475569; font-size: 14px; font-weight: 500; }
+  .nav-item:hover { background: #f8fafc; color: #1e293b; }
+  .nav-item.active { background: #eef2ff; color: #4f46e5; }
+  .btn { display: inline-flex; align-items: center; gap: .4rem; border-radius: .75rem; padding: .55rem .9rem; font-size: 13px; font-weight: 600; border: 1px solid #e2e8f0; background: #fff; color: #1e293b; }
+  .btn:hover { background: #f8fafc; }
+  .btn-primary { background: #4f46e5; border-color: #4f46e5; color: #fff; box-shadow: 0 8px 20px -8px rgba(79,70,229,.5); }
+  .btn-primary:hover { background: #4338ca; }
+  .btn-danger { background: #fff1f2; border-color: #fecdd3; color: #be123c; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .kpi { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .tab { padding: .55rem .9rem; border-radius: .75rem; font-size: 13px; font-weight: 600; color: #64748b; }
+  .tab.active { background: #fff; color: #4f46e5; box-shadow: 0 1px 2px rgba(15,23,42,.06); border: 1px solid #f1f5f9; }
+  .thumb { border: 1px solid #e2e8f0; border-radius: .75rem; overflow: hidden; background: #f8fafc; }
+  .thumb img { width: 100%; display: block; }
+  input, textarea, select { border: 1px solid #e2e8f0; border-radius: .75rem; padding: .55rem .8rem; font-size: 13px; width: 100%; background: #fff; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid #c7d2fe; border-color: #a5b4fc; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #94a3b8; font-weight: 600; padding: .6rem .75rem; border-bottom: 1px solid #f1f5f9; }
+  td { padding: .7rem .75rem; border-bottom: 1px solid #f8fafc; vertical-align: top; color: #1e293b; }
+  tr.row:hover td { background: #fafbff; cursor: pointer; }
+  .score-bar { height: 4px; border-radius: 9999px; background: #fecdd3; }
+  .toast { position: fixed; right: 1.25rem; bottom: 1.25rem; background: #1a1a1c; color: #fff; padding: .7rem 1rem; border-radius: .75rem; font-size: 13px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.6); z-index: 50; }
+  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: flex; align-items: center; justify-content: center; z-index: 40; padding: 1.5rem; }
+  .modal .card { max-width: 1100px; width: 100%; max-height: 92vh; overflow: auto; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body class="bg-slate-50 text-ink antialiased">
+<div class="flex min-h-screen">
+  <aside class="w-[248px] shrink-0 bg-white border-r border-slate-100 flex flex-col p-4 sticky top-0 h-screen">
+    <a href="#/cases" class="flex items-center gap-3 px-2 py-1">
+      <img src="/app/static/logo.png" alt="The Regulator AI" class="h-9 w-auto">
+      <div>
+        <div class="font-semibold text-[15px] leading-tight text-ink">The Regulator <span class="text-brand">AI</span></div>
+        <div class="eyebrow">EUDR Pilot Edition</div>
+      </div>
+    </a>
+    <div class="card p-3 mt-5">
+      <div class="flex items-center gap-2 eyebrow"><span class="h-1.5 w-1.5 rounded-full bg-brand"></span>Pilot context</div>
+      <div class="mt-2 text-[13px] font-medium">Control Union · Line A — Soya</div>
+      <div class="text-[11px] text-slate-400 mt-0.5">EUDR (EU) 2023/1115 · cut-off 2020-12-31</div>
+    </div>
+    <nav class="mt-5 flex flex-col gap-1" id="nav">
+      <a class="nav-item" data-route="cases" href="#/cases">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Cases</a>
+      <a class="nav-item" data-route="review" href="#/review">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Review queue</a>
+      <a class="nav-item" data-route="exceptions" href="#/exceptions">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3.1l-8-14a2 2 0 00-3.4 0z"/></svg>Exception ledger</a>
+      <a class="nav-item" data-route="documents" href="#/documents">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/></svg>Documents &amp; citations</a>
+      <a class="nav-item" data-route="roi" href="#/roi">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M7 16V9m5 7V5m5 11v-5"/></svg>ROI report</a>
+    </nav>
+    <div class="mt-auto card p-3">
+      <div class="eyebrow">Signed-in reviewer</div>
+      <input id="reviewer" class="mt-2" placeholder="name@controlunion.com">
+      <div class="text-[10px] text-slate-400 mt-2 leading-snug">Recorded on approvals, overrides and acknowledgements for audit traceability. No performance metrics are computed.</div>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0">
+    <header class="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-100 sticky top-0 z-10">
+      <div>
+        <h1 id="title" class="text-[19px] font-semibold tracking-tight">Cases</h1>
+        <div class="flex items-center gap-2 mt-1"><span class="eyebrow">Framework</span><span class="pill pill-minor">EUDR (EU) 2023/1115</span><span class="pill pill-info">Advisory · human sign-off</span></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="casebadge" class="pill pill-none" hidden></span>
+        <span class="pill pill-none"><span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>Engine online</span>
+        <span class="h-8 w-8 rounded-full border-2 border-brand text-brand grid place-items-center text-[11px] font-bold">AI</span>
+      </div>
+    </header>
+    <section id="view" class="p-8"></section>
+  </main>
+</div>
+<div id="modal" class="modal" hidden><div class="card p-6" id="modal-body"></div></div>
+<div id="toast" class="toast" hidden></div>
+<script src="/app/static/app.js"></script>
+</body>
+</html>

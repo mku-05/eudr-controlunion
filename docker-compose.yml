@@ -1,0 +1,15 @@
+# Provider-neutral evaluation workspace. Agents are off in the container until a commercial LLM route is configured.
+services:
+  api:
+    build: .
+    ports: ["8471:8471"]
+    environment:
+      EUDR_DB_URL: postgresql+psycopg://eudr:eudr@db:5432/eudr
+      EUDR_GEO_PROVIDER: public
+    volumes: ["eudr-data:/data"]
+    depends_on: [db]
+  db:
+    image: postgis/postgis:16-3.4
+    environment: {POSTGRES_USER: eudr, POSTGRES_PASSWORD: eudr, POSTGRES_DB: eudr}
+    volumes: ["eudr-db:/var/lib/postgresql/data"]
+volumes: {eudr-data: {}, eudr-db: {}}
