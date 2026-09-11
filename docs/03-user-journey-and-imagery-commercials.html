@@ -1,0 +1,219 @@
+<title>EUDR Console Journey & Imagery Commercials</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F3F7; --ink:#1F2D3A; --ink-2:#3E4C5A; --muted:#6B7A89; --rule:#E3E8EF;
+  --accent:#4F46E5; --accent-soft:#EEF2FF; --brand:#27AE60;
+  --pass:#0E8A5F; --pass-soft:#E3F6EC; --exc:#B9700E; --exc-soft:#FBF0DA; --crit:#C42B4A; --crit-soft:#FBE3E8;
+  --night:#1A1A1C; --night-ink:#E7E9EE;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1216; --surface:#171B21; --surface-2:#1E242C; --ink:#E6EAF0; --ink-2:#C3CAD4; --muted:#8B96A4; --rule:#2A323C;
+    --accent:#8B85F5; --accent-soft:#232647; --brand:#4CC784;
+    --pass:#5AD19A; --pass-soft:#153826; --exc:#E5A64C; --exc-soft:#3A2A12; --crit:#F07A93; --crit-soft:#3E1B25;
+    --night:#0A0B0D; --night-ink:#E7E9EE;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1216; --surface:#171B21; --surface-2:#1E242C; --ink:#E6EAF0; --ink-2:#C3CAD4; --muted:#8B96A4; --rule:#2A323C;
+  --accent:#8B85F5; --accent-soft:#232647; --brand:#4CC784;
+  --pass:#5AD19A; --pass-soft:#153826; --exc:#E5A64C; --exc-soft:#3A2A12; --crit:#F07A93; --crit-soft:#3E1B25;
+  --night:#0A0B0D; --night-ink:#E7E9EE;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"Geist",ui-sans-serif,system-ui,sans-serif;font-size:16px;line-height:1.6;padding-block:0 96px;padding-inline:clamp(16px,4vw,40px)}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;line-height:1.15;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(30px,4.5vw,44px);font-weight:700}
+h2{font-size:clamp(22px,3vw,28px);font-weight:600}
+h3{font-size:17px;font-weight:600}
+p{margin:0 0 14px}
+.wrap{max-width:1040px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:"Geist Mono",ui-monospace,monospace;font-size:.9em;font-variant-numeric:tabular-nums}
+.mast{padding-block:44px 28px;border-bottom:1px solid var(--rule);display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.mast .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px}
+.mast .brand i{width:8px;height:8px;border-radius:50%;background:var(--brand);display:inline-block}
+.mast .brand b{color:var(--brand);font-weight:600}
+.lede{max-width:64ch;color:var(--ink-2);font-size:18px;margin-top:14px}
+.meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;font-size:13px;color:var(--muted)}
+.meta span b{color:var(--ink);font-weight:600}
+section{padding-block:40px 8px}
+section>.eyebrow{display:block;margin-bottom:8px}
+section>h2{margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:18px 20px}
+.oneline{background:var(--accent-soft);color:var(--ink);border-radius:14px;padding:18px 22px;font-size:19px;font-weight:600;line-height:1.4;margin:16px 0 8px}
+/* journey */
+.journey{position:relative;margin-top:22px;display:grid;gap:14px}
+.stage{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:start}
+.stage .num{width:44px;height:44px;border-radius:50%;background:var(--surface);border:2px solid var(--rule);display:grid;place-items:center;font-weight:700;font-size:15px;color:var(--accent);position:relative;z-index:1}
+.stage .body{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:14px 18px}
+.stage .who{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.who.auditor{background:var(--crit-soft);color:var(--crit)}
+.who.engine{background:var(--pass-soft);color:var(--pass)}
+.who.agent{background:var(--accent-soft);color:var(--accent)}
+.who.client{background:var(--surface-2);color:var(--muted)}
+.stage h3{display:inline}
+.stage p{margin:8px 0 0;color:var(--ink-2);font-size:15px}
+.stage ul{margin:8px 0 0;padding-left:1.2em;color:var(--ink-2);font-size:15px}
+.stage li{margin-bottom:4px}
+.flags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.flag{padding:6px 12px;border-radius:10px;font-size:13px;font-weight:600}
+.flag.pass{background:var(--pass-soft);color:var(--pass)} .flag.exc{background:var(--exc-soft);color:var(--exc)} .flag.crit{background:var(--crit-soft);color:var(--crit)}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
+.roles .card b{display:block;margin-bottom:4px}
+.roles .card p{margin:0;font-size:14px;color:var(--ink-2)}
+/* tables */
+.tbl{overflow-x:auto;margin:14px 0 6px;border:1px solid var(--rule);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--rule)}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+.tbl.wide table{min-width:760px}
+.cost{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+.cost .card{padding:16px 18px}
+.cost .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.cost .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.cost .s{font-size:13px;color:var(--muted);margin-top:4px}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px}
+.tier{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.tier.hi{border-color:var(--accent);box-shadow:0 12px 30px -22px var(--accent)}
+.tier .t{font-weight:700;font-size:16px}
+.tier .p{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.tier .p small{font-size:12px;color:var(--muted);font-weight:500}
+.tier p{margin:0;font-size:14px;color:var(--ink-2)}
+.night{background:var(--night);color:var(--night-ink);border-radius:16px;padding:20px 22px;margin-top:18px}
+.night .eyebrow{color:#9AA3AF}
+.night p{margin:8px 0 0;font-size:15px}
+.sources{font-size:13px;color:var(--muted);padding-left:1.2em}
+.sources li{margin-bottom:4px;overflow-wrap:anywhere}
+.note{font-size:13px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+<header class="mast">
+  <div style="flex:1;min-width:280px">
+    <div class="brand"><i></i>The Regulator <b>AI</b> · Control Union · Line A — Soya</div>
+    <h1 style="margin-top:14px">EUDR Console Journey &amp; Imagery Commercials</h1>
+    <p class="lede">How an auditor works a soya submittal package from upload to acknowledgement, and how high-resolution satellite imagery is bought, priced and packaged on top of the free baseline.</p>
+    <div class="meta"><span>Prepared <b>11 Sep 2026</b></span><span>Framework <b>EUDR (EU) 2023/1115</b></span><span>Cut-off <b>31 Dec 2020</b></span><span>Status <b>advisory · human sign-off</b></span></div>
+  </div>
+</header>
+
+<section id="journey">
+  <span class="eyebrow">Part 1</span>
+  <h2>The user journey, in plain language</h2>
+  <div class="oneline">An exporter sends Control Union a messy pile of files. The auditor drops that pile into the console, the engine does a day's worth of checking in minutes, and the auditor spends their time only on the handful of things that genuinely need a human eye.</div>
+
+  <div class="journey">
+    <div class="stage"><div class="num">1</div><div class="body"><h3>A package arrives</h3><span class="who client">Exporter</span>
+      <p>An exporter wants to ship 15,500 t of soya to Rotterdam. They send what they have: a supplier spreadsheet, a lot spreadsheet, a GeoJSON/KML of their fields, a purchase contract, a chain-of-custody manifest, a traceability certificate, and a blurry scanned CAR receipt. Some of it is in Portuguese. None of it is tidy.</p></div></div>
+
+    <div class="stage"><div class="num">2</div><div class="body"><h3>The auditor drops it in</h3><span class="who auditor">Auditor</span>
+      <p>On the <b>Cases</b> page they drag the whole folder onto the upload box and click <em>Create case</em>. That is the only data entry they ever do.</p></div></div>
+
+    <div class="stage"><div class="num">3</div><div class="body"><h3>The engine reads everything</h3><span class="who engine">Engine</span><span class="who agent">Intake agent</span>
+      <ul>
+        <li>PDFs are read; scanned pages go through OCR. Every important value — CAR number, tax ID, tonnes, dates, "no deforestation after 2020" declarations — is located on the page and boxed so it can be cited later.</li>
+        <li>The Intake agent works out who the suppliers are, which fields belong to whom, what is in each lot, and lists what is <b>missing</b> (e.g. "No-Data Cooperative sent no polygons").</li>
+        <li>Every polygon is checked: valid geometry, inside Brazil, polygon where one is required, no overlap with another supplier's field.</li>
+      </ul></div></div>
+
+    <div class="stage"><div class="num">4</div><div class="body"><h3>Every field is checked against satellites</h3><span class="who engine">Engine</span>
+      <p>For each polygon the engine asks three questions: <em>Was there forest here on 31 Dec 2020? Has any of it been lost since? Was that land turned into farmland?</em> It uses public datasets — Hansen forest change, ESA WorldCover, Sentinel-2 — and produces a flag:</p>
+      <div class="flags"><span class="flag pass">PASS · no forest at cut-off, or intact</span><span class="flag exc">EXCEPTION · changed but ambiguous</span><span class="flag crit">CRITICAL · forest cleared after cut-off, now crop or pasture</span></div>
+      <p>Alongside the flag it saves the evidence: a before and after satellite image, a colour map of what changed, and a vegetation (NDVI) timeline.</p></div></div>
+
+    <div class="stage"><div class="num">5</div><div class="body"><h3>An AI analyst looks at the hard ones</h3><span class="who agent">Geo Analyst agent</span>
+      <p>For every EXCEPTION and CRITICAL plot, a vision model reads those images and writes an opinion — "this looks like a harvest cycle, not clearing" or "cleared block visible in the after-image, cropped since". It <b>recommends</b>; it never decides.</p></div></div>
+
+    <div class="stage"><div class="num">6</div><div class="body"><h3>The rest of the package is checked too</h3><span class="who engine">Engine</span><span class="who agent">Legality · Drafter · Critic agents</span>
+      <ul>
+        <li><b>Legality</b> — fields overlaid on indigenous lands, protected areas and embargo lists; documents read for missing paperwork.</li>
+        <li><b>Chain of custody</b> — the manifest becomes a flow, farm → silo → exporter, and tonnes are balanced at every step. A silo that received 1,300 t but shipped 1,500 t is flagged.</li>
+        <li><b>Volume</b> — declared tonnes against what those hectares could plausibly yield.</li>
+        <li><b>Risk</b> — an Art. 10 score with a drafted narrative.</li>
+        <li><b>Critic</b> — re-reads the whole case looking for anything that would embarrass the signer.</li>
+      </ul></div></div>
+
+    <div class="stage"><div class="num">7</div><div class="body"><h3>The auditor opens the case</h3><span class="who auditor">Auditor</span>
+      <p>The case page shows a satellite map of the fields coloured by flag, a risk gauge and a short "What needs attention" list. Most of the package is already green and needs nothing.</p></div></div>
+
+    <div class="stage"><div class="num">8</div><div class="body"><h3>The auditor works the review queue</h3><span class="who auditor">Auditor</span>
+      <p>In the <b>Review workspace</b> they step through the three or four flagged fields. For each one they see the before/after slider, the change map, the NDVI chart and the AI's opinion, and make one of two calls: <b>Approve</b> the engine's flag, or <b>Override</b> it with a written reason. Both are recorded against their name on a tamper-evident ledger.</p></div></div>
+
+    <div class="stage"><div class="num">9</div><div class="body"><h3>They check the exceptions</h3><span class="who auditor">Auditor</span>
+      <p>The <b>Exception ledger</b> lists everything else — the silo gap, the embargoed supplier, the missing polygons, the over-declared lot — each linked to the exact line in the PDF it came from. The <b>Documents</b> view shows those citations boxed on the actual page.</p></div></div>
+
+    <div class="stage"><div class="num">10</div><div class="body"><h3>They acknowledge</h3><span class="who auditor">Auditor</span>
+      <p>Once every flagged field has a decision, the auditor clicks <b>Acknowledge dossier</b>. The engine refuses if anything is still unreviewed or the Critic found a blocking issue that has not been accepted. The output is an evidence-pack PDF and an exception CSV for the exporter and Control Union's file.</p></div></div>
+
+    <div class="stage"><div class="num">11</div><div class="body"><h3>The fields stay watched</h3><span class="who engine">Engine</span>
+      <p>If a deforestation alert later fires inside one of those polygons, the engine re-screens it and reopens the case.</p></div></div>
+  </div>
+
+  <h3 style="margin-top:28px">Who does what</h3>
+  <div class="roles">
+    <div class="card"><b>The engine</b><p>Reading, geometry, satellite maths, mass balances. Deterministic and reproducible — the part that carries the evidence.</p></div>
+    <div class="card"><b>The AI agents</b><p>Judgement-shaped work: extracting from messy files, looking at imagery, drafting, criticising. They only ever recommend.</p></div>
+    <div class="card"><b>The auditor</b><p>Every decision that matters, with their name on it. Approve, override, acknowledge.</p></div>
+  </div>
+  <p class="note" style="margin-top:12px">Per the pilot SOW: nothing here is a certificate or a conformity decision. It is evidence preparation that lets an accredited human decide faster and with better proof.</p>
+</section>
+
+<section id="commercial">
+  <span class="eyebrow">Part 2</span>
+  <h2>Commercial imagery: how it is bought and how it is packaged</h2>
+  <div class="oneline">Commercial imagery is a by-exception, pass-through cost — not a platform cost. Free Sentinel-2 at 10 m settles most plots; sharp imagery is bought only for the flagged plots an auditor wants to defend, and is priced per plot.</div>
+
+  <h3 style="margin-top:20px">What is on the market (2026, indicative)</h3>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Provider</th><th>Resolution</th><th>How you buy</th><th>Indicative price</th><th>Minimum</th></tr></thead>
+    <tbody>
+      <tr><td>Sentinel-2 (Copernicus)</td><td>10 m, ~5-day revisit</td><td>Free, public cloud</td><td class="mono">$0</td><td>—</td></tr>
+      <tr><td>Planet PlanetScope</td><td>3–3.7 m, daily</td><td>Subscription: area under management per year</td><td class="mono">from ~$2,700 / yr for a 50 km² tier</td><td>area tier</td></tr>
+      <tr><td>Planet SkySat</td><td>50 cm</td><td>Per km², archive or new tasking</td><td class="mono">~$6 / km² archive · $12 flexible · $40 assured</td><td>25 km²</td></tr>
+      <tr><td>Vantor (formerly Maxar)</td><td>30–50 cm</td><td>Per km² via resellers / SkyFi</td><td class="mono">"tens of dollars / km²", variable</td><td>1 km² archive</td></tr>
+      <tr><td>Planet NICFI basemaps</td><td>~5 m monthly, tropics</td><td>Free non-commercial; commercial terms since 2024</td><td class="mono">licence check</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin-top:24px">What it costs per case</h3>
+  <p style="color:var(--ink-2)">A Brazilian soya plot is 300–1,000 ha (3–10 km²). A typical package has two to four flagged plots.</p>
+  <div class="cost">
+    <div class="card"><div class="k">SkySat archive · 3 plots</div><div class="v mono">≈ $150–300</div><div class="s">25 km² minimum × $6, before + after dates</div></div>
+    <div class="card"><div class="k">Vantor archive · 3 plots</div><div class="v mono">≈ $1,000</div><div class="s">~$25 / km² × 20 km² × 2 dates</div></div>
+    <div class="card"><div class="k">New tasking</div><div class="v mono">2–7×</div><div class="s">cloud-free guaranteed; disputes only</div></div>
+    <div class="card"><div class="k">Context</div><div class="v mono">rounding error</div><div class="s">against an audit fee in the thousands</div></div>
+  </div>
+
+  <h3 style="margin-top:24px">How to package it</h3>
+  <div class="tiers">
+    <div class="tier"><div class="t">Included</div><div class="p">$0 <small>every plot, unlimited</small></div><p>Sentinel-2 + Hansen + WorldCover screening, evidence chips, NDVI series. This is the product.</p></div>
+    <div class="tier hi"><div class="t">High-resolution verification</div><div class="p">$95–150 <small>per plot per date</small></div><p>Ordered from the plot drawer with one click, price shown before ordering. SkySat archive at cost ($25–60); margin covers ordering, alignment, storage and licence. Attached to the evidence pack with licence metadata on the ledger.</p></div>
+    <div class="tier"><div class="t">Continuous monitoring</div><div class="p">~$50–60 <small>per km² per year, entry tier</small></div><p>PlanetScope area-under-management over Control Union's active supplier base: daily 3 m coverage of every plot for alerts. Sensible once more than ~500 plots are under watch.</p></div>
+    <div class="tier"><div class="t">Tasking</div><div class="p">per order <small>client approval</small></div><p>Never bundled into a flat fee — unpredictable and cloud-dependent. Charged per order, for disputes.</p></div>
+  </div>
+
+  <div class="night">
+    <span class="eyebrow">What it means for the pilot</span>
+    <p>Nothing in the $0 pilot SOW changes. Commercial imagery belongs in the Year 1 enterprise conversion as a metered line ("HR verification, per plot-date") plus an optional monitoring subscription. Reserve a small imagery budget (~$500) inside the pilot to show one flagged plot at 50 cm — the demo moment where the auditor sees the cleared block, not a 10 m blur.</p>
+    <p>Integration is already seamed: a provider in the engine fetches a scene by bounds and date; SkySat and Vantor both have ordering APIs, so "Order HR imagery" becomes a button that creates the order, waits for delivery and attaches the chips as evidence.</p>
+  </div>
+
+  <h3 style="margin-top:24px">Sources</h3>
+  <ul class="sources">
+    <li><a href="https://www.planet.com/pricing/?tab=monitoring">Planet — pricing (monitoring)</a></li>
+    <li><a href="https://www.planet.com/pricing/insights-platform/">Planet — Insights Platform pricing</a></li>
+    <li><a href="https://apollomapping.com/blog/an-update-on-skysat-tasking-pricing-and-video-capabilities">Apollo Mapping — SkySat tasking, pricing</a></li>
+    <li><a href="https://skyfi.com/en/products/maxar">SkyFi — Vantor (Maxar) imagery</a></li>
+    <li><a href="https://nimbo.earth/stories/satellite-imagery-pricing/">Nimbo — satellite imagery pricing</a></li>
+    <li><a href="https://geoimage.com.au/news/all-new-pricing-vantor-satellite-data">Geoimage — Vantor pricing</a></li>
+  </ul>
+  <p class="note">Prices are public list or reseller figures as of September 2026 and vary by volume, region and licence; confirm with the provider before quoting.</p>
+</section>
+</div>

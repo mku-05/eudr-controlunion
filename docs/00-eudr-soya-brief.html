@@ -1,0 +1,366 @@
+<title>EUDR Soya Verification Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F4F6F1; --surface:#FFFFFF; --surface-2:#EAEFE7;
+  --ink:#17231C; --ink-2:#3A473F; --muted:#5E6C64; --rule:#D3DBD2;
+  --accent:#1F5F7A; --accent-ink:#164A60; --accent-soft:#DCEAF1;
+  --good:#2E7D4F; --good-soft:#DDEFE3; --warn:#C7841A; --warn-soft:#F6E9D2; --bad:#B23A3A; --bad-soft:#F3DCDC;
+  --forest:#3B7A4E; --loss:#C25B3A; --code-bg:#EEF2EC;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1512; --surface:#161D19; --surface-2:#1D2622;
+    --ink:#E4EBE4; --ink-2:#C2CCC4; --muted:#96A39A; --rule:#2C3730;
+    --accent:#7CC0DA; --accent-ink:#A9D8EA; --accent-soft:#1B3340;
+    --good:#66C08A; --good-soft:#193226; --warn:#E3A44A; --warn-soft:#3A2C14; --bad:#E07070; --bad-soft:#3D1F1F;
+    --forest:#5FA574; --loss:#E0785A; --code-bg:#1B2420;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1512; --surface:#161D19; --surface-2:#1D2622;
+  --ink:#E4EBE4; --ink-2:#C2CCC4; --muted:#96A39A; --rule:#2C3730;
+  --accent:#7CC0DA; --accent-ink:#A9D8EA; --accent-soft:#1B3340;
+  --good:#66C08A; --good-soft:#193226; --warn:#E3A44A; --warn-soft:#3A2C14; --bad:#E07070; --bad-soft:#3D1F1F;
+  --forest:#5FA574; --loss:#E0785A; --code-bg:#1B2420;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:17px;line-height:1.6;padding-block:0 96px;padding-inline:clamp(16px,4vw,40px)}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;text-wrap:balance;line-height:1.1;margin:0}
+h1{font-size:clamp(34px,5vw,52px);font-weight:700;letter-spacing:-0.01em}
+h2{font-size:clamp(24px,3vw,30px);font-weight:600;margin-top:0}
+h3{font-size:19px;font-weight:600;margin-top:28px;margin-bottom:8px}
+p{margin:0 0 16px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.86em}
+.eyebrow{font-family:"Bricolage Grotesque",sans-serif;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto}
+
+/* masthead */
+.mast{padding-block:40px 28px;border-bottom:1px solid var(--rule)}
+.mast .eyebrow{margin-bottom:14px;display:block}
+.mast p.lede{max-width:66ch;font-size:19px;color:var(--ink-2);margin-top:18px}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;border:1px solid var(--rule);background:var(--surface);margin-top:28px}
+.status>div{padding:14px 18px;border-right:1px solid var(--rule)}
+.status>div:last-child{border-right:0}
+.status .k{font-family:"Bricolage Grotesque",sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.status .v{font-family:"IBM Plex Mono",monospace;font-size:15px;font-variant-numeric:tabular-nums}
+.status .v.big{font-size:26px;font-weight:500;line-height:1.1;color:var(--bad)}
+.status .v small{font-size:12px;color:var(--muted);font-family:"Source Serif 4",serif}
+@media (max-width:600px){.status>div{border-right:0;border-bottom:1px solid var(--rule)}.status>div:last-child{border-bottom:0}}
+
+/* body grid */
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;margin-top:40px}
+@media (max-width:820px){.layout{grid-template-columns:1fr;gap:24px}}
+nav.toc{position:sticky;top:24px;align-self:start;font-family:"Bricolage Grotesque",sans-serif;font-size:14px}
+nav.toc ol{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+nav.toc a{color:var(--muted);text-decoration:none}
+nav.toc a:hover{color:var(--ink)}
+@media (max-width:820px){nav.toc{position:static}nav.toc ol{flex-direction:row;flex-wrap:wrap;gap:6px 14px}}
+main{max-width:72ch}
+section{padding-block:8px 40px;border-bottom:1px solid var(--rule);margin-bottom:40px}
+section:last-of-type{border-bottom:0}
+section>.eyebrow{display:block;margin-bottom:10px}
+.brief-quote{border-left:3px solid var(--accent);padding:6px 18px;margin:18px 0 22px;font-style:italic;color:var(--ink-2);background:var(--surface)}
+.thesis{font-family:"Bricolage Grotesque",sans-serif;font-size:21px;line-height:1.35;font-weight:600;padding:20px 22px;background:var(--accent-soft);color:var(--accent-ink);border-radius:4px;margin:20px 0}
+:root[data-theme="dark"] .thesis{color:var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .thesis{color:var(--ink)}}
+
+/* tables */
+.tbl{overflow-x:auto;margin:18px 0 8px}
+table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--rule)}
+th{font-family:"Bricolage Grotesque",sans-serif;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--rule)}
+td:first-child{font-family:"Bricolage Grotesque",sans-serif;font-weight:600;white-space:nowrap}
+td .mono{white-space:nowrap}
+.tbl.wide table{min-width:720px}
+
+/* verdict tiles */
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+@media (max-width:560px){.verdicts{grid-template-columns:1fr}}
+.verdict{padding:14px 16px;border-radius:4px;border:1px solid var(--rule);background:var(--surface)}
+.verdict .tag{display:inline-block;font-family:"Bricolage Grotesque",sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;padding:3px 8px;border-radius:2px;margin-bottom:8px}
+.verdict.g .tag{background:var(--good-soft);color:var(--good)}
+.verdict.a .tag{background:var(--warn-soft);color:var(--warn)}
+.verdict.r .tag{background:var(--bad-soft);color:var(--bad)}
+.verdict p{font-size:15px;margin:0;color:var(--ink-2)}
+
+/* plot figure */
+figure{margin:24px 0;padding:18px;background:var(--surface);border:1px solid var(--rule)}
+figure svg{width:100%;height:auto;display:block;max-width:100%}
+figcaption{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.5}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"Bricolage Grotesque",sans-serif;font-size:13px;margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:2px;display:inline-block}
+
+/* lists */
+ol.q{padding-left:1.4em;counter-reset:q}
+ol.q li{margin-bottom:10px;padding-left:4px}
+ul.tight li{margin-bottom:6px}
+.hard{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.hard>div{padding:14px 16px;background:var(--surface);border:1px solid var(--rule);border-radius:4px}
+.hard b{font-family:"Bricolage Grotesque",sans-serif;font-weight:600;display:block;margin-bottom:4px}
+.hard p{margin:0;font-size:15.5px;color:var(--ink-2)}
+.mvp{padding:18px 20px;border:1px dashed var(--accent);border-radius:4px;background:var(--surface);font-size:16px}
+.mvp .flow{font-family:"Bricolage Grotesque",sans-serif;font-weight:600;line-height:1.7}
+.mvp .flow span{color:var(--accent);padding:0 6px}
+.sources{font-size:14px;color:var(--muted)}
+.sources li{margin-bottom:4px;overflow-wrap:anywhere}
+.persona td:nth-child(2){font-size:15px}
+.note{font-size:14px;color:var(--muted);font-style:italic}
+@media (prefers-reduced-motion:no-preference){nav.toc a{transition:color .15s}}
+</style>
+
+<div class="wrap">
+<header class="mast">
+  <span class="eyebrow">Requirement interpretation · Control Union · Soya</span>
+  <h1>EUDR Soya Verification Brief</h1>
+  <p class="lede">What Control Union is actually asking for, what the regulation forces the product to be, and the questions to settle before anything is built.</p>
+  <div class="status">
+    <div><div class="k">Prepared</div><div class="v">2026-09-11</div></div>
+    <div><div class="k">Status</div><div class="v">Draft · unconfirmed with CU</div></div>
+    <div><div class="k">EUDR applies from</div><div class="v">2026-12-30 <small>large &amp; medium</small></div></div>
+    <div><div class="k">Days remaining</div><div class="v big">110 <small>≈ 15.7 weeks</small></div></div>
+    <div><div class="k">Cut-off date</div><div class="v">2020-12-31</div></div>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Sections">
+  <ol>
+    <li><a href="#brief">The brief</a></li>
+    <li><a href="#ask">What's really being asked</a></li>
+    <li><a href="#reg">Regulatory constraints</a></li>
+    <li><a href="#problem">The technical problem</a></li>
+    <li><a href="#data">Data sources</a></li>
+    <li><a href="#users">Who uses it</a></li>
+    <li><a href="#scope">Functional scope</a></li>
+    <li><a href="#hard">Hard problems</a></li>
+    <li><a href="#mvp">Suggested MVP</a></li>
+    <li><a href="#questions">Questions for CU</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+<section id="brief">
+  <span class="eyebrow">1 · The brief as received</span>
+  <div class="brief-quote">"Control Union works with soya farming and needs to pass regulations like EUDR. They may provide a before and after image of land and we need to derive that no deforestation happened."</div>
+  <p class="note">Informal, second-hand. Everything below is interpretation; §10 lists what must be confirmed.</p>
+</section>
+
+<section id="ask">
+  <span class="eyebrow">2 · What is actually being asked for</span>
+  <p>Control Union is a <strong>certification and inspection body</strong>, not a farmer or trader. Its clients — soya producers, crushers, exporters and EU importers — must prove to the EU that their soya is EUDR-compliant, and CU wants to be the party that verifies it. So the product is almost certainly:</p>
+  <div class="thesis">An audit-grade platform that takes the geolocation of soya plots, independently verifies with satellite data that no forest on those plots was converted to agriculture after 31 Dec 2020, and produces evidence Control Union can put its accreditation behind.</div>
+  <p>The "before and after image" is the client's picture of the <em>output</em> — the land in 2020 versus now. It is not the <em>input</em>. The input is a <strong>plot polygon</strong>. The system generates the dated imagery as evidence.</p>
+  <p>Client-supplied photos cannot be primary evidence: their date, location and authenticity are unverifiable, and neither a competent authority nor CU's accreditation body would accept them. They can be attached as supplementary material (drone shots with EXIF GPS, field-visit photos), nothing more.</p>
+</section>
+
+<section id="reg">
+  <span class="eyebrow">3 · The regulation, reduced to what constrains the product</span>
+  <p>Regulation (EU) 2023/1115, as amended December 2025, with the simplification package of May–July 2026. Verified 11 Sep 2026.</p>
+  <div class="tbl wide"><table>
+    <thead><tr><th>Item</th><th>Rule</th><th>Consequence for the product</th></tr></thead>
+    <tbody>
+      <tr><td>Application date</td><td><span class="mono">30 Dec 2026</span> for large/medium operators; <span class="mono">30 Jun 2027</span> micro/small. Confirmed firm — no further delay.</td><td>110 days. MVP must be usable for the first 2026/27 shipments; Brazil harvest runs Jan–Apr 2027 and contracts are being fixed now.</td></tr>
+      <tr><td>Cut-off date</td><td>Produced on land <strong>not subject to deforestation after 31 Dec 2020</strong>.</td><td>Every verdict is "forest baseline at 2020-12-31" vs "loss between 2021-01-01 and production date". The 2020 baseline is the single most important dataset.</td></tr>
+      <tr><td>Forest definition <span class="mono">Art. 2(4)</span></td><td>&gt; 0.5 ha, trees &gt; 5 m, canopy &gt; 10 % (or able to reach that in situ), <strong>excluding land predominantly under agricultural or urban use</strong>.</td><td>Not every tree loss is deforestation. Cerrado savanna often fails 5 m / 10 %; cerradão and gallery forest pass. The engine must classify to the legal definition, not "vegetation loss".</td></tr>
+      <tr><td>Deforestation <span class="mono">Art. 2(3)</span></td><td>Conversion of forest to <strong>agricultural use</strong>, whether human-induced or not.</td><td>Fire or windthrow with no conversion is not deforestation for soya (degradation applies only to wood). Post-loss land use must be classified.</td></tr>
+      <tr><td>Geolocation <span class="mono">Art. 9(1)(d)</span></td><td>All plots where the commodity was produced; <strong>polygons for plots &gt; 4 ha</strong>; lat/long to 6 decimals; production date or range.</td><td>Polygon ingest, validation and storage are core. Soya plots are almost all &gt; 4 ha — polygons are the norm.</td></tr>
+      <tr><td>No mixing</td><td>If any part of a plot was deforested after the cut-off, product from that plot is non-compliant.</td><td>Partial overlap fails the whole plot. Field-level vs whole-farm polygons is a business decision the product must guide.</td></tr>
+      <tr><td>Legality <span class="mono">Art. 2(40)</span></td><td>Produced under the laws of the country of production: land tenure, environment, labour, human rights, FPIC, tax, anti-corruption, trade.</td><td>Deforestation-free is necessary, not sufficient. A legality dossier per supplier is a second module.</td></tr>
+      <tr><td>Risk assessment <span class="mono">Art. 10</span></td><td><strong>Brazil and Argentina are standard risk</strong> (list of 20 May 2025; review due 2026). Full assessment and mitigation required; only low-risk origins get simplified due diligence.</td><td>No shortcut for the main soya origins. Risk-scoring module needed.</td></tr>
+      <tr><td>Who files a DDS</td><td>Post-amendment: only the operator first placing on the EU market (or exporting). Downstream operators and traders reference upstream DDS numbers. Micro/small primary producers in <em>low-risk</em> countries may file a one-time simplified declaration.</td><td>Fewer filers, same burden per filer. Simplified declaration is irrelevant for Brazil/Argentina.</td></tr>
+      <tr><td>Information System</td><td>DDS submitted to the EU IS (TRACES); reopened June 2026 with updated API spec.</td><td>DDS export / API push is a late-stage feature, not MVP.</td></tr>
+      <tr><td>Records</td><td>Keep due-diligence records 5 years; competent authorities may demand them.</td><td>Immutable audit trail, versioned evidence, retention.</td></tr>
+      <tr><td>Penalties</td><td>Fines of at least 4 % of EU turnover, confiscation, market exclusion.</td><td>Evidence must survive regulatory challenge. Quality bar is audit-grade, not dashboard.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="problem">
+  <span class="eyebrow">4 · Re-framing "before / after" into the real technical problem</span>
+  <p>For each plot polygon, answer three questions with evidence:</p>
+  <ol class="q">
+    <li><strong>Was there forest (per EUDR definition) inside this polygon on 31 Dec 2020?</strong> If not, the plot is compliant on deforestation grounds — it was already cropland or pasture. Most Brazilian soya plots land here. This is the cheap, high-volume path.</li>
+    <li><strong>If yes, was any of it lost between 1 Jan 2021 and the production date?</strong> Published loss and alert datasets, plus the platform's own change detection on the Sentinel time series.</li>
+    <li><strong>If lost, was it converted to agricultural use?</strong> Post-loss land-cover classification and visual check. Conversion means non-compliant.</li>
+  </ol>
+  <div class="verdicts">
+    <div class="verdict g"><span class="tag">GREEN</span><p>No EUDR forest in 2020, or forest intact through the production date. Automated; spot-checked.</p></div>
+    <div class="verdict a"><span class="tag">AMBER</span><p>Loss signal inside the polygon but cause or land use ambiguous. Goes to an analyst. Never auto-resolved.</p></div>
+    <div class="verdict r"><span class="tag">RED</span><p>Forest at baseline, loss after cut-off, converted to crop or pasture. Analyst-confirmed only.</p></div>
+  </div>
+  <p>Each verdict carries: area affected (ha), confidence, datasets and versions consulted, dated image chips, time-series chart, analyst notes, sign-off.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 300" role="img" aria-label="Diagram of a soya plot polygon with 2020 forest baseline and post-2020 forest loss">
+      <defs>
+        <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--loss)" stroke-width="2"/>
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="640" height="300" fill="var(--surface-2)"/>
+      <!-- field rows -->
+      <g stroke="var(--rule)" stroke-width="1" opacity="0.8">
+        <line x1="60" y1="40" x2="60" y2="260"/><line x1="90" y1="40" x2="90" y2="260"/><line x1="120" y1="40" x2="120" y2="260"/><line x1="150" y1="40" x2="150" y2="260"/><line x1="180" y1="40" x2="180" y2="260"/><line x1="210" y1="40" x2="210" y2="260"/><line x1="240" y1="40" x2="240" y2="260"/><line x1="270" y1="40" x2="270" y2="260"/><line x1="300" y1="40" x2="300" y2="260"/><line x1="330" y1="40" x2="330" y2="260"/>
+      </g>
+      <!-- forest baseline 2020 -->
+      <path d="M350,40 L610,40 L610,260 L420,260 L400,200 L350,160 Z" fill="var(--forest)" opacity="0.45"/>
+      <!-- loss after 2020 inside polygon -->
+      <path d="M350,160 L400,200 L420,260 L470,260 L470,190 L410,150 Z" fill="url(#hatch)"/>
+      <path d="M350,160 L400,200 L420,260 L470,260 L470,190 L410,150 Z" fill="none" stroke="var(--loss)" stroke-width="1.5"/>
+      <!-- plot polygon -->
+      <path d="M40,40 L470,40 L470,260 L40,260 Z" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-dasharray="0"/>
+      <!-- vertices -->
+      <g fill="var(--ink)"><circle cx="40" cy="40" r="4"/><circle cx="470" cy="40" r="4"/><circle cx="470" cy="260" r="4"/><circle cx="40" cy="260" r="4"/></g>
+      <!-- labels -->
+      <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink)">
+        <text x="46" y="30">-13.104218, -55.911372</text>
+        <text x="476" y="30" text-anchor="start">plot 0071 · 1,284 ha</text>
+        <text x="46" y="282">soya · sown 2026-10 · harvest 2027-03</text>
+      </g>
+      <g font-family="Bricolage Grotesque, sans-serif" font-size="12" font-weight="600">
+        <text x="520" y="140" fill="var(--forest)">forest at 2020-12-31</text>
+        <text x="520" y="156" fill="var(--forest)">(legal reserve)</text>
+        <text x="480" y="225" fill="var(--loss)">cleared 2023-07</text>
+        <text x="480" y="241" fill="var(--loss)">≈ 41 ha → RED</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--ink)"></i>Submitted plot polygon</span>
+      <span><i class="sw" style="background:var(--forest);opacity:.55"></i>Forest per Art. 2(4) at cut-off</span>
+      <span><i class="sw" style="background:repeating-linear-gradient(45deg,var(--loss) 0 2px,transparent 2px 5px)"></i>Loss after 2020-12-31, converted</span>
+    </div>
+    <figcaption>Illustrative plot. A polygon drawn around the whole property catches 41 ha of legal reserve cleared in 2023 — and fails all 1,284 ha of soya. A field-level polygon excluding the reserve would pass. The product must show the overlap, not silently fail the plot.</figcaption>
+  </figure>
+
+  <h3>Why one before/after pair is not enough</h3>
+  <ul class="tight">
+    <li><strong>Cloud.</strong> Mato Grosso and the Cerrado have months of cloud; a clean optical pair near the required dates may not exist. Sentinel-1 radar and multi-year time series solve this.</li>
+    <li><strong>Seasonality.</strong> Soya harvest, pasture burn and dry season all read as "vegetation loss" in NDVI. A time series separates a crop cycle from clearing.</li>
+    <li><strong>Provenance.</strong> The auditor must state sensor, date and processing. Only platform-generated imagery carries that.</li>
+    <li><strong>Definition.</strong> An image shows tree loss; the law asks about forest per Art. 2(4) converted to agriculture. That needs classified layers, not eyeballing.</li>
+  </ul>
+</section>
+
+<section id="data">
+  <span class="eyebrow">5 · Data sources</span>
+  <p>All free unless noted. Run on Google Earth Engine or Copernicus Data Space / openEO — a raster pipeline from scratch does not fit in 110 days.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Purpose</th><th>Dataset</th></tr></thead>
+    <tbody>
+      <tr><td>2020 forest baseline</td><td><strong>JRC Global Forest Cover 2020</strong> (the EU's own reference map, 10 m); JRC Tropical Moist Forest; Hansen/UMD tree cover + lossyear; ESA WorldCover 2020/2021 (10 m)</td></tr>
+      <tr><td>Loss after 2020</td><td>Hansen lossyear ≥ 2021; <strong>GLAD-L / GLAD-S2</strong>; <strong>RADD</strong> (Sentinel-1 radar, works through cloud); <strong>PRODES / DETER</strong> (INPE — Brazil's official Amazon and Cerrado record; carries weight with auditors)</td></tr>
+      <tr><td>Imagery for evidence + own change detection</td><td>Sentinel-2 L2A (10 m, ~5-day revisit); Sentinel-1 GRD; Landsat 8/9 (30 m); Planet NICFI basemaps (higher resolution, tropics — licence terms to check); commercial VHR (Planet, Maxar) for disputed plots only — <em>paid</em></td></tr>
+      <tr><td>Legality &amp; risk — Brazil</td><td><strong>CAR / SICAR</strong> property boundaries (best available polygon source); IBAMA embargo list; Terras Indígenas (FUNAI); Unidades de Conservação; MTE "lista suja" (slave labour); Amazon Soy Moratorium (2008 cut-off — stricter than EUDR, Amazon biome only); biome boundaries; quilombola lands</td></tr>
+      <tr><td>Legality — Argentina, Paraguay</td><td>Ley de Bosques OTBN zoning (red / yellow / green); Paraguay Zero Deforestation Law (Eastern region)</td></tr>
+      <tr><td>Global</td><td>WDPA protected areas; Global Forest Watch</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="users">
+  <span class="eyebrow">6 · Who uses it</span>
+  <div class="tbl"><table class="persona">
+    <thead><tr><th>Persona</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td>CU auditor / GIS analyst</td><td>Review queue of AMBER and RED plots; side-by-side dated imagery; NDVI and radar time series; annotate; issue verdict; sign off; evidence pack; non-conformities and CAPA; sampling tools for large supplier bases.</td></tr>
+      <tr><td>CU client — operator / trader</td><td>Bulk upload of suppliers and plots; compliance status per plot, supplier and lot; volume reconciliation; DDS-ready export or TRACES push; Art. 10 risk-assessment record (standard-risk origins).</td></tr>
+      <tr><td>Supplier / farmer / cooperative</td><td>Submit polygons (CAR upload, GeoJSON/KML, mobile GPS walk) and legality documents; see only their own status. Portuguese and Spanish; low bandwidth; strong confidentiality expectations (LGPD).</td></tr>
+      <tr><td>CU management</td><td>Portfolio dashboards, throughput, evidence retention, accreditation traceability.</td></tr>
+      <tr><td>Competent authority (indirect)</td><td>Receives an evidence pack it can check independently.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="scope">
+  <span class="eyebrow">7 · Functional scope</span>
+  <h3>Core — the product does not exist without these</h3>
+  <ol class="q">
+    <li><strong>Plot and supplier ingest.</strong> GeoJSON, Shapefile, KML, CSV, CAR. Validation: topology, self-intersections, area vs declared, duplicates, cross-supplier overlaps, inside declared municipality, ≥ 4 ha ⇒ polygon required. Versioned.</li>
+    <li><strong>Deforestation screening engine.</strong> Automated GREEN / AMBER / RED per plot, per §4; batch; re-run on new alerts; area and confidence per plot.</li>
+    <li><strong>Evidence generation.</strong> Dated before (≤ 2020-12-31) and after (near production date) chips with sensor, cloud and date metadata; NDVI + radar time-series chart; loss overlay; PDF/JSON pack; content hash and timestamp.</li>
+    <li><strong>Analyst review workflow.</strong> Queue, assignment, override with justification, second reviewer, sign-off, immutable log.</li>
+    <li><strong>Status roll-up and export.</strong> Plot → supplier → lot/shipment → client; DDS-ready GeoJSON in the EU IS format, production dates, quantities.</li>
+  </ol>
+  <h3>Second wave</h3>
+  <ol class="q" start="6">
+    <li><strong>Art. 10 risk assessment.</strong> Country and sub-national risk, forest presence, indigenous peoples, corruption, supply-chain complexity, local deforestation prevalence, credible concerns, sanctions; mitigation actions; record.</li>
+    <li><strong>Legality dossier.</strong> Per-supplier checklist and documents; automated overlays with embargo, indigenous and protected-area layers.</li>
+    <li><strong>Volume reconciliation.</strong> Declared tonnes vs plot area × regional yield. Flags over-declaration — the standard way non-compliant soya is laundered through compliant plots. Most satellite tools ignore it; a certifier cannot.</li>
+    <li><strong>Chain of custody.</strong> Segregation vs mass balance at silo, crusher and port; lots linked to plots.</li>
+    <li><strong>DDS submission.</strong> TRACES API; reference-number management; downstream referencing.</li>
+    <li><strong>Continuous monitoring.</strong> Re-screen the plot base on new RADD / GLAD / DETER alerts; notify.</li>
+  </ol>
+  <h3>Non-functional that matter here</h3>
+  <ul class="tight">
+    <li>Audit-grade: every verdict reproducible — dataset version, algorithm version, analyst, timestamp.</li>
+    <li>Multi-tenant with strict isolation; CU's clients are competitors, and farmers' polygons are commercially sensitive.</li>
+    <li>Scale: one trader can hold thousands of plots of hundreds to thousands of hectares. Screening is batch and cheap; imagery is pulled only for AMBER/RED and for evidence.</li>
+    <li>EN / PT-BR / ES. Five-year retention. LGPD and GDPR.</li>
+    <li>Commodity-agnostic core — cocoa, coffee, palm, rubber and wood share the engine; only legality layers and forest-type nuances change.</li>
+  </ul>
+</section>
+
+<section id="hard">
+  <span class="eyebrow">8 · Hard problems to be honest about</span>
+  <div class="hard">
+    <div><b>Cerrado</b><p>Most new Brazilian soya expansion is in the Cerrado (MATOPIBA). Much of it is not "forest" under EUDR, so the product may correctly say GREEN while NGOs and buyers say the soya comes from converted native vegetation. Recommend two flags — <em>EUDR forest</em> and <em>native vegetation</em> — so the legal answer and the reputational answer are both visible.</p></div>
+    <div><b>Baseline disagreement</b><p>JRC GFC 2020, Hansen and WorldCover disagree at plot edges. Document a precedence rule (JRC primary; Hansen and a 2020 Sentinel-2 composite as tie-breakers) and route conflicts to review.</p></div>
+    <div><b>Plot precision</b><p>A CAR polygon covers the whole property including the legal reserve. One hectare of reserve cleared in 2022 turns a 5,000 ha GREEN farm RED. Suppliers must be able to submit field-level polygons, and the client must see exactly what the overlap is.</p></div>
+    <div><b>False positives</b><p>Harvest, fire, drought, cloud shadow, eucalyptus and tree-crop rotations. Time series + radar + an analyst gate. RED is never fully automatic.</p></div>
+    <div><b>Polygon acquisition</b><p>Farmers resist handing over polygons; traders often know the silo, not the farm. Make CAR-based onboarding trivial: search by CAR number → fetch polygon → confirm.</p></div>
+    <div><b>Timeline</b><p>110 days to application. Ship screening + evidence + review first; risk, legality and DDS after. Build on Earth Engine or Copernicus; do not train models.</p></div>
+    <div><b>Liability</b><p>CU puts its accreditation behind each verdict. A versioned methodology document is a deliverable, not just software.</p></div>
+  </div>
+</section>
+
+<section id="mvp">
+  <span class="eyebrow">9 · Suggested MVP — to validate with CU</span>
+  <div class="mvp">
+    <div class="flow">Upload polygons <span>→</span> screen against JRC GFC 2020 + Hansen + RADD/GLAD + PRODES <span>→</span> GREEN / AMBER / RED per plot with dated Sentinel-2 chips and NDVI/S1 series <span>→</span> analyst review and sign-off <span>→</span> evidence PDF + DDS-ready GeoJSON/CSV</div>
+    <p style="margin:12px 0 0;color:var(--muted);font-size:15px">Single tenant: one CU office, one pilot client, Brazil first.</p>
+  </div>
+</section>
+
+<section id="questions">
+  <span class="eyebrow">10 · Questions to put to Control Union</span>
+  <ol class="q">
+    <li>Who is the primary user — CU auditors verifying clients, or CU's clients self-serving on a CU-branded platform? Both?</li>
+    <li>What does CU deliver to its client at the end — a verification statement, an audit report, an input into RTRS / ISCC / ProTerra / Cefetra CRS audits?</li>
+    <li>Which origins first — Brazil (which states and biomes), Argentina, Paraguay, Uruguay, India, US?</li>
+    <li>Volume in season one: clients, suppliers, plots, hectares. Peak timing.</li>
+    <li>Where do polygons come from today — CAR, client GIS, nothing? Is a field-capture mobile app needed?</li>
+    <li>Scope: deforestation only, or deforestation + legality + Art. 10 risk assessment?</li>
+    <li>DDS submission to TRACES, or only the evidence for the client's own filing?</li>
+    <li>Should the platform also flag non-EUDR conversion — Cerrado native vegetation, Soy Moratorium 2008 cut-off?</li>
+    <li>Budget for commercial imagery, or free Sentinel/Landsat only?</li>
+    <li>What happens on RED — supplier exclusion, CAPA, re-audit? Who decides?</li>
+    <li>Existing tools or partners (Global Forest Watch Pro, Satelligence, LiveEO, Orbify, Meridia)? Build, buy or integrate?</li>
+    <li>Other commodities on the roadmap?</li>
+    <li>Data ownership, confidentiality, hosting region (EU / Brazil), LGPD and GDPR posture.</li>
+  </ol>
+</section>
+
+<section id="sources">
+  <span class="eyebrow">Sources</span>
+  <ul class="sources">
+    <li><a href="https://environment.ec.europa.eu/news/commission-updates-product-scope-and-tools-support-eudr-2026-07-13_en">European Commission — product scope and Information System update, 13 Jul 2026</a></li>
+    <li><a href="https://www.hoganlovells.com/en/publications/eu-deforestation-regulation-commission-publishes-simplification-package-ahead-of-december-2026">Hogan Lovells — simplification package ahead of December 2026</a></li>
+    <li><a href="https://www.adherent.com/blog/eudr-simplification-review-2026-whats-new-what-stays-the-same-and-what-additional-support-can-companies-expect/">Adherent — EUDR simplification review 2026</a></li>
+    <li><a href="https://eustafor.eu/eudr-what-the-commissions-4-may-2026-simplification-package-means-for-wood-state-forests-and-non-eu-operators/">EUSTAFOR — the 4 May 2026 simplification package</a></li>
+    <li><a href="https://www.stibbe.com/publications-and-insights/the-amended-eudr-what-has-changed-and-what-has-remained">Stibbe — the amended EUDR</a></li>
+    <li><a href="https://www.preferredbynature.org/news/european-commission-publishes-first-list-country-benchmarks-under-eu-deforestation-regulation">Preferred by Nature — first country benchmarking list</a></li>
+    <li><a href="https://green-forum.ec.europa.eu/nature-and-biodiversity/deforestation-regulation-implementation/eudr-cooperation-and-partnerships/country-classification-list_en">European Commission — country classification list</a></li>
+    <li><a href="https://www.controlunion.com/eu-deforestation-regulation-eudr/">Control Union — EUDR services</a></li>
+    <li><a href="https://www.meridia.land/blog/eudr-soy-compliance-a-comprehensive-guide">Meridia — EUDR soy compliance guide</a></li>
+    <li><a href="https://www.global-traceability.com/en/faqs-explained-eudr-traceability-geolocation-4th-ed/">Global Traceability — geolocation FAQ, 4th ed.</a></li>
+  </ul>
+</section>
+</main>
+</div>
+</div>
