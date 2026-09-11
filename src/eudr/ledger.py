@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -30,6 +31,7 @@ class Ledger:
     def __init__(self, case_id: str):
         self.path = settings.data_dir / "cases" / case_id / "ledger.jsonl"
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
     def _last_hash(self) -> str:
         if not self.path.exists():
@@ -42,6 +44,10 @@ class Ledger:
         return json.loads(last)["hash"] if last else "0" * 64
 
     def append(self, kind: str, actor: str, payload: dict[str, Any]) -> dict[str, Any]:
+        with self._lock:
+            return self._append(kind, actor, payload)
+
+    def _append(self, kind: str, actor: str, payload: dict[str, Any]) -> dict[str, Any]:
         entry = {
             "ts": datetime.now(timezone.utc).isoformat(),
             "kind": kind,            # tool_call | agent_step | human_action | state_change

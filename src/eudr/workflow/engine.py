@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import random
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -156,27 +157,33 @@ def _ingest_replies(case: Case, led: Ledger) -> None:
 
 
 # ---------- screen ----------
+def _screen_one(case_id: str, p, prov, with_imagery: bool):
+    geom = _screenable_geometry(p)
+    if geom is None:
+        return None
+    r = prov.rasters(geom)
+    v, conf, reason, m, layers = screen(r)
+    if not r.loss_sources and v == Verdict.CRITICAL:
+        v, conf, reason = Verdict.EXCEPTION, 0.6, reason + " Single loss source — analyst confirmation required."
+    ev = build_evidence(case_id, p, r, layers, prov, with_imagery=with_imagery)
+    a = Assessment(subject_ref=p.id, rule_pack_version=RULE_PACK.version, verdict=v, confidence=conf, metrics=m, evidence=ev)
+    a.hash = sha256_json(a.model_dump(mode="json", exclude={"hash"}))
+    return a, reason, r.dataset_versions
+
+
 def screen_case(case: Case, led: Ledger, with_imagery: bool = True) -> Case:
     prov = _provider(case)
-    for p in case.plots:
-        if not p.geometry:
+    todo = [p for p in case.plots if p.geometry and not (
+        (prev := case.assessment_for(p.id)) and prev.rule_pack_version == RULE_PACK.version and not _needs_rescreen(case, p.id))]
+    with ThreadPoolExecutor(max_workers=settings.screen_workers) as pool:
+        results = list(pool.map(lambda p: _screen_one(case.id, p, prov, with_imagery), todo))
+    for p, res in zip(todo, results):
+        if res is None:
             continue
-        prev = case.assessment_for(p.id)
-        if prev and prev.rule_pack_version == RULE_PACK.version and not _needs_rescreen(case, p.id):
-            continue
-        geom = _screenable_geometry(p)
-        if geom is None:
-            continue
-        r = prov.rasters(geom)
-        v, conf, reason, m, layers = screen(r)
-        if not r.loss_sources and v == Verdict.CRITICAL:
-            v, conf, reason = Verdict.EXCEPTION, 0.6, reason + " Single loss source — analyst confirmation required."
-        ev = build_evidence(case.id, p, r, layers, prov, with_imagery=with_imagery)
-        a = Assessment(subject_ref=p.id, rule_pack_version=RULE_PACK.version, verdict=v, confidence=conf, metrics=m, evidence=ev)
-        a.hash = sha256_json(a.model_dump(mode="json", exclude={"hash"}))
+        a, reason, versions = res
         case.assessments.append(a)
-        led.append("tool_call", "geo.screen", {"plot": p.id, "verdict": v, "confidence": conf, "reason": reason, "metrics": m.model_dump(),
-                                              "datasets": r.dataset_versions, "evidence": [(e.type, e.sha256) for e in ev], "assessment": a.id})
+        led.append("tool_call", "geo.screen", {"plot": p.id, "verdict": a.verdict, "confidence": a.confidence, "reason": reason, "metrics": a.metrics.model_dump(),
+                                              "datasets": versions, "evidence": [(e.type, e.sha256) for e in a.evidence], "assessment": a.id})
     store().save(case)
     return case
 
@@ -201,24 +208,28 @@ def _needs_rescreen(case: Case, plot_id: str) -> bool:
 # ---------- adjudicate ----------
 def adjudicate(case: Case, led: Ledger, qa_fraction: float = 0.05) -> Case:
     rng = random.Random(case.id)
+    todo = []
     for p in case.plots:
         a = case.assessment_for(p.id)
         if not a or a.reviewer or a.analyst_opinion:
             continue
-        needs = a.verdict == Verdict.EXCEPTION or (a.verdict != Verdict.EXCEPTION and rng.random() < qa_fraction)
-        if a.verdict == Verdict.CRITICAL:
-            needs = True
-        if not needs:
-            continue
-        reason = next((e["payload"]["reason"] for e in reversed(led.entries()) if e["actor"] == "geo.screen" and e["payload"].get("assessment") == a.id), "")
+        if a.verdict in (Verdict.EXCEPTION, Verdict.CRITICAL) or rng.random() < qa_fraction:
+            reason = next((e["payload"]["reason"] for e in reversed(led.entries()) if e["actor"] == "geo.screen" and e["payload"].get("assessment") == a.id), "")
+            todo.append((p, a, reason))
+
+    def opinion(item):
+        p, a, reason = item
         carry = lambda why: AnalystOpinion(model="none", prompt_version="skip", recommended_verdict=a.verdict, confidence=a.confidence,
                                            rationale=f"{why} — engine flag carried forward", flags=[why.replace(" ", "_")])
-        if agents_on():
-            from eudr.agents.geo_analyst import run_geo_analyst
-            a.analyst_opinion = try_agent(led, "geo_analyst", lambda: run_geo_analyst(p, a, reason, ledger=led), lambda: carry("analyst unavailable"))
-        else:
-            a.analyst_opinion = carry("agents disabled")
-        op = a.analyst_opinion
+        if not agents_on():
+            return carry("agents disabled")
+        from eudr.agents.geo_analyst import run_geo_analyst
+        return try_agent(led, "geo_analyst", lambda: run_geo_analyst(p, a, reason, ledger=led), lambda: carry("analyst unavailable"))
+
+    with ThreadPoolExecutor(max_workers=settings.agent_workers) as pool:
+        opinions = list(pool.map(opinion, todo))
+    for (p, a, _), op in zip(todo, opinions):
+        a.analyst_opinion = op
         auto = (a.verdict == Verdict.EXCEPTION and op.recommended_verdict == Verdict.PASS and op.confidence >= settings.analyst_auto_accept_confidence)
         if auto:
             a.override_verdict, a.override_reason, a.reviewer = Verdict.PASS, f"auto-accepted analyst opinion ({op.confidence:.2f}): {op.rationale[:200]}", "system:geo_analyst"
@@ -317,12 +328,15 @@ def legality_and_risk(case: Case, led: Ledger) -> Case:
         from eudr.tools.docs.citations import cite_snippet
         cite_dir = settings.data_dir / "cases" / case.id / "docs" / "citations"
         all_texts = _doc_texts(case)
+        jobs = []
         for s in case.suppliers:
             names = [Path(d.path).name for d in case.documents if d.supplier_id == s.id]
             docs = {n: all_texts[n] for n in names if n in all_texts}
-            if not docs:
-                continue
-            cl = try_agent(led, "legality", lambda: run_legality(case, s.id, docs, ledger=led))
+            if docs:
+                jobs.append((s, docs))
+        with ThreadPoolExecutor(max_workers=settings.agent_workers) as pool:
+            results = list(pool.map(lambda j: try_agent(led, "legality", lambda: run_legality(case, j[0].id, j[1], ledger=led)), jobs))
+        for (s, _), cl in zip(jobs, results):
             for it in (cl.items if cl else []):
                 if it.status in ("missing", "concern"):
                     f = LegalityFinding(layer=f"doc:{it.requirement}", severity="warning" if it.status == "concern" else "info",

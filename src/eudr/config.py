@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     model_reasoning: str = "claude-opus-5"
     model_fast: str = "claude-sonnet-5"
     agent_max_turns: int = 24
+    agent_workers: int = Field(default=3, description="concurrent agent calls")
+    screen_workers: int = Field(default=4, description="concurrent plot screenings (network-bound)")
     analyst_auto_accept_confidence: float = 0.85
 
     # Country risk (Implementing Regulation of 20 May 2025)
