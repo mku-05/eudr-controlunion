@@ -7,3 +7,4 @@ __pycache__/
 .ruff_cache/
 tests/fixtures/case_mt_2027/
 tests/fixtures/layers/
+tests/fixtures/case_en_2027/

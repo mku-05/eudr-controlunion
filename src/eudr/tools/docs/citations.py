@@ -18,12 +18,12 @@ FIELD_PATTERNS = {
     "car_number": r"\b[A-Z]{2}-\d{7}-[0-9A-F]{32}\b",
     "cnpj": r"\b\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}\b",
     "cpf": r"\b\d{3}\.\d{3}\.\d{3}-\d{2}\b",
-    "tonnes": r"\b\d{1,3}(?:[.,]\d{3})*(?:,\d+)?\s*(?:t|ton|toneladas|tonnes|tons)\b",
+    "tonnes": r"\b\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?\s*(?:t|ton|toneladas|tonnes|tons)\b",
     "date": r"\b(?:\d{2}/\d{2}/\d{4}|\d{4}-\d{2}-\d{2})\b",
-    "deforestation_declaration": r"(?i)\b(?:desmatamento|deforestation|desmonte)\b[^.\n]{0,120}",
+    "deforestation_declaration": r"(?i)\b(?:desmatamento|deforestation|desmonte|deforestación)\b[^.\n]{0,120}",
     "hs_code": r"\b(?:HS|NCM)\s*\d{4}(?:\.\d{2})?\b",
     "coordinates": r"-?\d{1,2}\.\d{4,},\s*-?\d{1,3}\.\d{4,}",
-    "harvest_season": r"(?i)safra\s*\d{4}/\d{2,4}",
+    "harvest_season": r"(?i)(?:safra|season)\s*\d{4}/\d{2,4}|\d{4}/\d{4}\s+season",
 }
 
 

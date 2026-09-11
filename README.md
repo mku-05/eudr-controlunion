@@ -33,7 +33,8 @@ adjudication, legality reading, drafting and adversarial review. A named human s
 ```bash
 uv sync --extra dev
 .venv/bin/pytest tests/unit -q                       # no network, no agents
-.venv/bin/python tests/fixtures/build_fixtures.py    # synthetic Mato Grosso case folder
+.venv/bin/python tests/fixtures/build_fixtures.py    # synthetic Mato Grosso package (Portuguese, as a real BR submittal)
+.venv/bin/python -m tests.fixtures.build_fixtures_en # same package in English (tests/fixtures/case_en_2027)
 
 # deterministic run on synthetic rasters
 EUDR_AGENTS=0 EUDR_GEO_PROVIDER=mock .venv/bin/eudr case create tests/fixtures/case_mt_2027 --no-agent
@@ -48,7 +49,7 @@ EUDR_AGENTS=0 EUDR_GEO_PROVIDER=mock .venv/bin/eudr case run <case_id>
 .venv/bin/eudr report roi                            # aggregate ROI report → data/reports/
 
 # with agents and real satellite data
-scripts/demo.sh public data/demo-public
+scripts/demo.sh public data/demo-public tests/fixtures/case_en_2027   # English package on real satellite data
 
 # API + web console (The Regulator AI design system)
 .venv/bin/eudr serve   # console at http://127.0.0.1:8471/app · API docs at /docs

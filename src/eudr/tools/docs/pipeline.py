@@ -55,11 +55,11 @@ def _kind(name: str, text: str) -> str:
     n, t = name.lower(), text.lower()
     if "manifest" in n or "cadeia de cust" in t or "chain of custody" in t:
         return "coc_manifest"
-    if "rastreab" in n or "trace" in n or "rastreabilidade" in t:
+    if "rastreab" in n or "traceab" in n or "rastreabilidade" in t or "traceability certificate" in t:
         return "trace_certificate"
-    if "contrat" in n or "contrato" in t:
+    if "contrat" in n or "contrato" in t or "agreement" in n or "purchase agreement" in t:
         return "contract"
-    if "car" in n.split("_") or "recibo" in n or "cadastro ambiental" in t:
+    if "car" in n.split("_") or "recibo" in n or "car_receipt" in n or "cadastro ambiental" in t:
         return "car_receipt"
     if "matric" in n or "escritura" in t:
         return "land_title"

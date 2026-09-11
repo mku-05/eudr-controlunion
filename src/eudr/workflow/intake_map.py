@@ -32,8 +32,17 @@ def _date(v) -> date | None:
 
 
 def _num(v) -> float | None:
+    if isinstance(v, str):
+        t = v.strip().replace(" ", "")
+        if re.fullmatch(r"\d{1,3}(\.\d{3})+(,\d+)?", t):      # 1.300,5 (pt/es)
+            t = t.replace(".", "").replace(",", ".")
+        elif re.fullmatch(r"\d{1,3}(,\d{3})+(\.\d+)?", t):    # 1,300.5 (en)
+            t = t.replace(",", "")
+        else:
+            t = t.replace(",", ".")
+        v = t
     try:
-        return float(str(v).replace(".", "").replace(",", ".")) if isinstance(v, str) and "," in str(v) else float(v)
+        return float(v)
     except (TypeError, ValueError):
         return None
 

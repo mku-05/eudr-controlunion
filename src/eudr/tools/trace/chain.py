@@ -7,14 +7,16 @@ from eudr.models import Case, TraceChain, TraceCheck, TraceEdge, TraceNode
 from eudr.tools.docs.citations import Page, cite_snippet
 
 EDGE_RE = re.compile(r"^(?P<src>[^\n:>]+?)\s*(?:->|→)\s*(?P<dst>[^\n:>]+?):\s*(?P<t>\d{1,3}(?:[.,]\d{3})*(?:,\d+)?)\s*t\b(?P<rest>[^\n]*)", re.I | re.M)
-TIER_HINTS = [("silo", "silo"), ("armaz", "silo"), ("coop", "cooperative"), ("esmagad", "crusher"), ("crush", "crusher"),
+TIER_HINTS = [("silo", "silo"), ("armaz", "silo"), ("warehouse", "silo"), ("farm", "farm"), ("smallholding", "farm"), ("grains export", "exporter"), ("coop", "cooperative"), ("esmagad", "crusher"), ("crush", "crusher"),
               ("export", "exporter"), ("trading", "trader"), ("porto", "port"), ("fazenda", "farm"), ("sítio", "farm"), ("sitio", "farm"), ("agropec", "farm")]
 TOLERANCE = 0.02
 
 
 def _tonnes(s: str) -> float:
-    s = s.strip().replace(".", "").replace(",", ".")
-    return float(s)
+    s = s.strip()
+    if re.fullmatch(r"\d{1,3}(,\d{3})+(\.\d+)?", s):
+        return float(s.replace(",", ""))
+    return float(s.replace(".", "").replace(",", "."))
 
 
 def _tier(name: str) -> str:
@@ -26,7 +28,7 @@ def _tier(name: str) -> str:
 
 
 def _clean(name: str) -> str:
-    return re.sub(r"\s*\(CNPJ[^)]*\)", "", name).strip(" -–")
+    return re.sub(r"\s*\((?:CNPJ|tax id)[^)]*\)", "", name, flags=re.I).strip(" -–")
 
 
 def parse_chain(texts: dict[str, str], pages: dict[str, list[Page]] | None = None, cite_dir=None) -> TraceChain:
@@ -44,7 +46,7 @@ def parse_chain(texts: dict[str, str], pages: dict[str, list[Page]] | None = Non
                     nodes[nm] = TraceNode(id=f"node_{len(nodes) + 1}", name=nm, tier=_tier(nm), tax_id=_cnpj(m.group(0)) if nm == src else None)
             rest = m["rest"]
             lot = (re.search(r"(LOTE-[\w-]+|LOT-[\w-]+)", rest) or [None])[0]
-            doc = (re.search(r"(CT-e\s*\d+|romaneios?\s*[\d\-]+)", rest, re.I) or [None])[0]
+            doc = (re.search(r"(CT-e\s*\d+|romaneios?\s*[\d\-]+|weigh tickets?\s*[\d\-]+)", rest, re.I) or [None])[0]
             edge = TraceEdge(source=nodes[src].id, target=nodes[dst].id, tonnes=_tonnes(m["t"]), lot_reference=lot, doc_ref=doc,
                              period=(re.search(r"\d{4}-\d{2}-\d{2}(?:\s*a\s*\d{4}-\d{2}-\d{2})?", rest) or [None])[0])
             if pages and fname in pages:
